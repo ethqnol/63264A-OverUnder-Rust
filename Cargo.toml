@@ -1,12 +1,11 @@
 [package]
-name = "{{63264A-OverUnder}}"
+name = "OverUnder-63264A"
 version = "0.1.0"
-authors = ["{{authors}}"]
+authors = ["Ethan Wu", "Jacob Signorovitch"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies.vex-rt]
-# Comment out the version line and uncomment the git line to use pre-release versions.
 vex-rt = "0.15.1"
-# git = "https://gitlab.com/qvex/vex-rt.git"
+version = "0.15.1"
