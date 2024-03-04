@@ -1,5 +1,5 @@
 [package]
-name = "{{project-name}}"
+name = "{{63264A-OverUnder}}"
 version = "0.1.0"
 authors = ["{{authors}}"]
 edition = "2021"
