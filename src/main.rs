@@ -6,25 +6,57 @@ use core::time::Duration;
 use vex_rt::{prelude::*, select};
 
 mod drive;
+mod intake;
+mod lift;
 
-struct MyRobot {
+struct Robot63264A {
     drive: Mutex<drive::Drive>,
+    intake: Mutex<intake::Intake>,
+    lift: Mutex<lift::Lift>,
     controller: Controller,
 }
 
-impl Robot for MyRobot {
+const RED_RPM : i16 = 100;
+const GREEN_RPM : i16 = 200;
+const BLUE_RPM : i16 = 600;
+
+
+impl Robot for Robot63264A {
     fn new(peripherals: Peripherals) -> Self {
         Self {
             drive: Mutex::new(drive::Drive {
-                left_drive: peripherals
-                    .port01
+                left_front_drive: peripherals
+                    .port10
+                    .into_motor(Gearset::ThirtySixToOne, EncoderUnits::Degrees, false)
+                    .unwrap(),
+                left_back_drive: peripherals
+                    .port09
+                    .into_motor(Gearset::ThirtySixToOne, EncoderUnits::Degrees, false)
+                    .unwrap(),
+                right_front_drive: peripherals
+                    .port20
+                    .into_motor(Gearset::ThirtySixToOne, EncoderUnits::Degrees, true)
+                    .unwrap(),
+                right_back_drive: peripherals
+                    .port19
+                    .into_motor(Gearset::ThirtySixToOne, EncoderUnits::Degrees, true)
+                    .unwrap(),
+
+            }),
+
+            intake: Mutex::new(intake::Intake {
+                intake: peripherals
+                    .port08
                     .into_motor(Gearset::EighteenToOne, EncoderUnits::Degrees, false)
                     .unwrap(),
-                right_drive: peripherals
-                    .port02
-                    .into_motor(Gearset::EighteenToOne, EncoderUnits::Degrees, true)
-                    .unwrap(),
             }),
+
+            lift: Mutex::new(lift::Lift {
+                lift: peripherals
+                    .port03
+                    .into_motor(Gearset::SixToOne, EncoderUnits::Degrees, false);
+            }),
+
             controller: peripherals.master_controller,
         }
     }
@@ -41,8 +73,7 @@ impl Robot for MyRobot {
     fn opcontrol(&mut self, ctx: Context) {
         println!("opcontrol");
 
-        // This loop construct makes sure the drive is updated every 10
-        // milliseconds.
+        // loop with delay of 10ms
         let mut l = Loop::new(Duration::from_millis(10));
         loop {
             // Update the motors.
@@ -50,6 +81,14 @@ impl Robot for MyRobot {
                 self.controller.left_stick.get_y().unwrap(),
                 self.controller.right_stick.get_y().unwrap(),
             );
+
+            if self.controller.up.is_pressed().unwrap() {
+                self.lift.lock().run(true);
+            } else if self.controller.down.is_pressed().unwrap() {
+                self.lift.lock().run(false);
+            } else {
+                self.lift.lock().lift.
+            }
 
             select! {
                 // If the driver control period is done, break out of the loop.
@@ -67,4 +106,4 @@ impl Robot for MyRobot {
     }
 }
 
-entry!(MyRobot);
+entry!(Robot63264A);
