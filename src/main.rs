@@ -52,7 +52,7 @@ impl Robot for Robot63264A {
             lift: Mutex::new(lift::Lift {
                 lift: peripherals
                     .port03
-                    .into_motor(Gearset::EighteenToOne, EncoderUnits::Degrees, false)
+                    .into_motor(Gearset::SixToOne, EncoderUnits::Degrees, false)
                     .unwrap(),
             }),
 
