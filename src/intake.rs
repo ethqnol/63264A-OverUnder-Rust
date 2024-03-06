@@ -12,4 +12,7 @@ impl Intake {
             self.intake.move_i8(-127).unwrap();
         }
     }
+    pub fn stop(&mut self) {
+        self.intake.move_velocity(0).unwrap();
+    }
 }

@@ -12,4 +12,8 @@ impl Lift {
             self.lift.move_i8(-127).unwrap();
         }
     }
+
+    pub fn stop(&mut self) {
+        self.lift.move_velocity(0).unwrap();
+    }
 }

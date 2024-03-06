@@ -16,10 +16,9 @@ struct Robot63264A {
     controller: Controller,
 }
 
-const RED_RPM : i16 = 100;
-const GREEN_RPM : i16 = 200;
-const BLUE_RPM : i16 = 600;
-
+const RED_RPM: i16 = 100;
+const GREEN_RPM: i16 = 200;
+const BLUE_RPM: i16 = 600;
 
 impl Robot for Robot63264A {
     fn new(peripherals: Peripherals) -> Self {
@@ -41,7 +40,6 @@ impl Robot for Robot63264A {
                     .port19
                     .into_motor(Gearset::ThirtySixToOne, EncoderUnits::Degrees, true)
                     .unwrap(),
-
             }),
 
             intake: Mutex::new(intake::Intake {
@@ -54,7 +52,8 @@ impl Robot for Robot63264A {
             lift: Mutex::new(lift::Lift {
                 lift: peripherals
                     .port03
-                    .into_motor(Gearset::SixToOne, EncoderUnits::Degrees, false);
+                    .into_motor(Gearset::EighteenToOne, EncoderUnits::Degrees, false)
+                    .unwrap(),
             }),
 
             controller: peripherals.master_controller,
@@ -62,7 +61,42 @@ impl Robot for Robot63264A {
     }
 
     fn initialize(&mut self, _ctx: Context) {
-        // Do any extra initialization here.
+        println!("initialize");
+        self.intake
+            .lock()
+            .intake
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
+
+        self.lift
+            .lock()
+            .lift
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
+
+        self.drive
+            .lock()
+            .left_front_drive
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
+
+        self.drive
+            .lock()
+            .left_back_drive
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
+
+        self.drive
+            .lock()
+            .right_back_drive
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
+
+        self.drive
+            .lock()
+            .right_front_drive
+            .set_brake_mode(BrakeMode::Coast)
+            .unwrap();
     }
 
     fn autonomous(&mut self, _ctx: Context) {
@@ -87,7 +121,15 @@ impl Robot for Robot63264A {
             } else if self.controller.down.is_pressed().unwrap() {
                 self.lift.lock().run(false);
             } else {
-                self.lift.lock().lift.
+                self.lift.lock().stop();
+            }
+
+            if self.controller.l1.is_pressed().unwrap() {
+                self.intake.lock().run(true);
+            } else if self.controller.l2.is_pressed().unwrap() {
+                self.intake.lock().run(false);
+            } else {
+                self.intake.lock().stop();
             }
 
             select! {
